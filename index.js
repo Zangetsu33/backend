@@ -1,5 +1,4 @@
 import dotenv from 'dotenv'; 
-dotenv.config();
 import express from 'express';
 import path from 'node:path';
 import { createPool } from 'mysql2/promise';
@@ -10,13 +9,15 @@ import morganMiddleware from './src/middlewares/morganMiddleware.js';
 import errorMiddleware from './src/middlewares/errorMiddleware.js';
 import personalRoutes from './src/routes/personalRoutes.js';
 
-
+// Obtener la ruta absoluta al archivo .env usando import.meta.url
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const envPath = path.join(__dirname, '.env');
+
+// Cargar las variables de entorno desde el archivo .env
+dotenv.config({ path: envPath });
 
 
- 
-console.log('JWT_SECRET:', process.env.JWT_SECRET);// Cargar las variables de entorno desde un archivo .env
 // Crear un pool de conexiones con las configuraciones de la base de datos
 const db = createPool({
     host: process.env.DB_HOST,

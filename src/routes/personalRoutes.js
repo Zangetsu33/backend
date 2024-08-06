@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import authMiddleware from '../middlewares/authMiddleware.js'
+import { generateToken } from './middlewares/generatorToken.js';
 import {db} from '../personal/db.js'; // Importar el pool de conexiones correctamente
 
 
@@ -27,7 +29,7 @@ router.get('/available-users', async (req, res) => {
 });
 
 // Definir la ruta para obtener datos
-router.get('/db', async (req, res) => {
+router.get('/db', authMiddleware, async (req, res) => {
     try {
         // Ejecutar la consulta usando el pool de conexiones
         const [results] = await db.query('SELECT * FROM db');
@@ -270,6 +272,18 @@ router.put('/db/id/:id', async (req, res) => {
         console.error('Error ejecutando la consulta:', err);
         res.status(500).json({ error: 'Error en la consulta a la base de datos' });
     }
+});
+
+// Ruta para generar un nuevo token (puede ser una ruta de inicio de sesión o similar)
+router.post('/token', (req, res) => {
+    const { userId } = req.body; // Asegúrate de que estás recibiendo userId en el cuerpo de la solicitud
+
+    if (!userId) {
+        return res.status(400).json({ message: 'userId es necesario para generar el token.' });
+    }
+
+    const token = generateToken(userId);
+    res.json({ token });
 });
 
 export default router;

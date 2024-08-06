@@ -7,28 +7,18 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Imprime la ruta completa al archivo .env para verificar
+// Imprimir la ruta completa al archivo .env para verificar
 const envPath = path.join(__dirname, '.env');
 console.log('Ruta completa al archivo .env:', envPath);
 
 // Cargar variables de entorno desde el archivo .env
 dotenv.config({ path: envPath });
 
-// Verificar el valor de JWT_SECRET cargado
-console.log('JWT_SECRET:', process.env.JWT_SECRET);
-
-if (!process.env.JWT_SECRET) {
-    throw new Error('La variable de entorno JWT_SECRET no está definida.');
-}
-
-const generateToken = (userId) => {
+// Exportar generateToken como exportación predeterminada
+export const generateToken = (userId) => {
     const payload = { userId };
     const secret = process.env.JWT_SECRET;
     const options = { expiresIn: '1h' };
 
     return jwt.sign(payload, secret, options);
 };
-
-// Ejemplo de generación de token
-const token = generateToken(1);
-console.log('Token generado:', token);
