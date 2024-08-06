@@ -1,12 +1,13 @@
 import dotenv from 'dotenv'; 
 import express from 'express';
 import path from 'node:path';
+import {generateToken}  from './src/routes/middlewares/generatorToken.js'
 import { createPool } from 'mysql2/promise';
 import { fileURLToPath } from 'url';
-import loggerMiddleware from './src/middlewares/loggerMiddleware.js';
-import authMiddleware from './src/middlewares/authMiddleware.js';
-import morganMiddleware from './src/middlewares/morganMiddleware.js';
-import errorMiddleware from './src/middlewares/errorMiddleware.js';
+import loggerMiddleware from './src/routes/middlewares/loggerMiddleware.js';
+import authMiddleware from './src/routes/middlewares/authMiddleware.js';
+import morganMiddleware from './src/routes/middlewares/morganMiddleware.js';
+import errorMiddleware from './src/routes/middlewares/errorMiddleware.js';
 import personalRoutes from './src/routes/personalRoutes.js';
 
 // Obtener la ruta absoluta al archivo .env usando import.meta.url

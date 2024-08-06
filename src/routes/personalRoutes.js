@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import authMiddleware from '../middlewares/authMiddleware.js'
+import authMiddleware from './middlewares/authMiddleware.js'
 import { generateToken } from './middlewares/generatorToken.js';
 import {db} from '../personal/db.js'; // Importar el pool de conexiones correctamente
 

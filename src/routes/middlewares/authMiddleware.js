@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import {generateToken}  from '../middlewares/generatorToken.js'
+import {generateToken}  from './generatorToken.js'
 
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers['authorization'];
