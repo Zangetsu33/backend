@@ -1,0 +1,22 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Logica para la interaccion en la peticiones y del programa",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "nodemon index.js"
+  },
+  "author": "jonathan andres",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.11.0",
+    "nodemon": "^3.1.4",
+    "zod": "^3.23.8"
+  }
+}

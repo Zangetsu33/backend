@@ -1,0 +1,27 @@
+# Ignorar la carpeta node_modules
+/node_modules
+
+# Ignorar el archivo de configuración de entorno
+/.env
+
+# Ignorar archivos de log
+*.log
+
+# Ignorar las carpetas de salida de builds
+/dist
+/build
+
+# Ignorar archivos temporales del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar carpetas de IDEs
+/.vscode
+/.idea
+
+# Ignorar configuraciones locales de npm
+npm-debug.log
+yarn-error.log
+
+# Ignorar archivo de pruebas API
+/api.http
