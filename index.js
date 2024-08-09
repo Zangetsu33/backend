@@ -224,6 +224,52 @@ app.get('/personal/db/cargo/:cargo', async (req, res) => {
     }
 });
 
+// CREACION DE UN NUEVO REGISTRO
+app.post('/personal/db/create', (req, res) => {
+    const { id, cedula, nombre_completo, apellido_completo, cargo } = req.body;
+
+    console.log('Datos recibidos:', { id, cedula, nombre_completo, apellido_completo, cargo });
+
+    // Validar que todos los campos obligatorios estén presentes
+    if (!id || !cedula || !nombre_completo || !apellido_completo || !cargo) {
+        return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    // Validar los tipos de datos esperados
+    if (isNaN(id) || isNaN(cedula) || typeof nombre_completo !== 'string' || typeof apellido_completo !== 'string' || typeof cargo !== 'string') {
+        return res.status(400).json({ error: 'Tipos de datos incorrectos' });
+    }
+
+    // Insertar nuevo registro en la base de datos
+    const insertQuery = 'INSERT INTO db (id, cedula, nombre_completo, apellido_completo, cargo) VALUES (?, ?, ?, ?, ?)';
+    db.query(insertQuery, [id, cedula, nombre_completo, apellido_completo, cargo], (err, results) => {
+        if (err) {
+            console.error('Error insertando el registro:', err);
+            return res.status(500).json({ error: 'Error insertando el registro en la base de datos' });
+        }
+
+        // Mostrar el nuevo registro en la terminal
+        console.log('Nuevo registro creado:');
+        console.log({
+            id,
+            cedula,
+            nombre_completo,
+            apellido_completo,
+            cargo
+        });
+
+        // Enviar respuesta exitosa al cliente
+        res.status(201).json({
+            message: 'Registro creado con éxito',
+            id: results.insertId,
+            cedula,
+            nombre_completo,
+            apellido_completo,
+            cargo
+        });
+    });
+});
+
 
 
 
