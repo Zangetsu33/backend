@@ -4,6 +4,7 @@ import path from 'node:path';
 import { createPool } from 'mysql2/promise';
 import { fileURLToPath } from 'url';
 import { pool } from './src/personal/db.js';
+import { validateUser, validatePartialUser } from './user.js';
 
 
 
@@ -72,9 +73,11 @@ app.get('/personal/db/cedula/:cedula', async (req, res) => {
     try {
         const { cedula } = req.params;
 
-        // Validar que el parámetro 'cedula' esté presente y no esté vacío
-        if (!cedula || cedula.trim() === '') {
-            return res.status(400).json({ error: 'Parámetro "cedula" es requerido y no puede estar vacío' });
+        // Validar el parámetro 'cedula' usando el esquema de validación
+        try {
+            validateUser.parse({ cedula }); // Solo validamos el campo 'cedula'
+        } catch (err) {
+            return res.status(400).json({ error: 'Cédula inválida', details: err.errors });
         }
 
         // Consulta SQL para buscar registros por cedula
@@ -86,7 +89,6 @@ app.get('/personal/db/cedula/:cedula', async (req, res) => {
         console.log(results);
 
         if (results.length === 0) {
-            // Si no se encuentran datos con la cédula proporcionada
             return res.status(404).json({ message: 'No se encontraron registros con la cédula proporcionada' });
         }
 
@@ -103,9 +105,11 @@ app.get('/personal/db/nombre/:nombre', async (req, res) => {
     try {
         const { nombre } = req.params;
 
-        // Validar que el parámetro 'nombre' esté presente y no esté vacío
-        if (!nombre || nombre.trim() === '') {
-            return res.status(400).json({ error: 'Parámetro "nombre" es requerido y no puede estar vacío' });
+        // Validar el parámetro 'nombre' usando el esquema de validación
+        try {
+            validatePartialUser.parse({ nombre_completo: nombre }); // Usamos el campo 'nombre_completo'
+        } catch (err) {
+            return res.status(400).json({ error: 'Nombre inválido', details: err.errors });
         }
 
         console.log('Buscando registros con el nombre:', nombre);
@@ -130,8 +134,6 @@ app.get('/personal/db/nombre/:nombre', async (req, res) => {
         console.log('Resultados de la consulta:', results);
 
         if (results.length === 0) {
-            // Si no se encuentran datos con el nombre proporcionado
-            console.log(`No se encontraron registros con el nombre "${nombre}"`);
             return res.status(404).json({ message: `No se encontraron registros con el nombre "${nombre}"` });
         }
 
@@ -147,6 +149,13 @@ app.get('/personal/db/nombre/:nombre', async (req, res) => {
 app.get('/personal/db/apellido_completo/:apellido', async (req, res) => {
     const { apellido } = req.params;
 
+    // Validar el parámetro 'apellido' usando el esquema de validación
+    try {
+        validatePartialUser.parse({ apellido_completo: apellido }); // Usamos el campo 'apellido_completo'
+    } catch (err) {
+        return res.status(400).json({ error: 'Apellido inválido', details: err.errors });
+    }
+
     // Validar que el parámetro 'apellido' esté presente y no esté vacío
     if (!apellido || apellido.trim() === '') {
         return res.status(400).json({ error: 'Parámetro "apellido" es requerido y no debe estar vacío.' });
@@ -154,11 +163,13 @@ app.get('/personal/db/apellido_completo/:apellido', async (req, res) => {
 
     try {
         // Consulta SQL para buscar por apellido_completo
-        const [rows] = await pool.query(
+        const [rows] = await db.query(
             `SELECT * FROM db 
             WHERE apellido_completo LIKE CONCAT('%', ?, '%')`,
             [apellido.trim()]
         );
+
+        console.log('Resultados de la consulta:', rows);
 
         if (rows.length === 0) {
             return res.status(404).json({ message: 'No se encontraron resultados' });
@@ -171,6 +182,47 @@ app.get('/personal/db/apellido_completo/:apellido', async (req, res) => {
     }
 });
 
+// RECUPERACION DE DATOS POR EL CARGO
+app.get('/personal/db/cargo/:cargo', async (req, res) => {
+    const { cargo } = req.params;
+    const normalizedCargo = cargo.trim().toLowerCase();
+
+    // Definir la consulta SQL para buscar registros que contengan "gerente" o "ejecutivo" en el cargo
+    const query = `
+        SELECT * FROM db
+        WHERE LOWER(TRIM(cargo)) LIKE ?
+    `;
+
+    let searchTerm = '';
+
+    if (normalizedCargo === 'gerente') {
+        searchTerm = '%gerente%';
+    } else if (normalizedCargo === 'ejecutivo') {
+        searchTerm = '%ejecutivo%';
+    } else {
+        return res.status(400).json({ error: 'El cargo debe ser "gerente" o "ejecutivo"' });
+    }
+
+    try {
+        // Ejecutar la consulta a la base de datos
+        const [results] = await db.query(query, [searchTerm]);
+
+        // Imprimir los resultados en la consola
+        console.log('Resultados de la consulta:', results);
+
+        // Si no se encontraron resultados, responder con un mensaje adecuado
+        if (results.length === 0) {
+            console.log('No se encontraron registros con el cargo especificado');
+            return res.status(404).json({ message: 'No se encontraron registros con el cargo especificado' });
+        }
+
+        // Enviar los resultados como JSON
+        res.json(results);
+    } catch (err) {
+        console.error('Error ejecutando la consulta:', err);
+        res.status(500).json({ error: 'Error en la consulta a la base de datos' });
+    }
+});
 
 
 
