@@ -270,6 +270,35 @@ app.post('/personal/db/create', (req, res) => {
     });
 });
 
+// ELIMINACION DE UN REGISTRO SOLO POR EL NOMBRE SIN ELIMINAR EL ID Y EL CARGO
+app.delete('/personal/db/cedula/:cedula', async (req, res) => {
+    const { cedula } = req.params;
+
+    console.log('Intentando eliminar el registro con la cédula:', cedula);
+
+    // Definir la consulta SQL para eliminar registros por cédula
+    const query = `
+        DELETE FROM db
+        WHERE cedula = ?
+    `;
+
+    try {
+        // Ejecutar la consulta de eliminación en la base de datos
+        const [result] = await db.query(query, [cedula]);
+
+        // Verificar si se eliminó algún registro
+        if (result.affectedRows === 0) {
+            console.log('No se encontraron registros con la cédula especificada');
+            return res.status(404).json({ message: 'No se encontraron registros con la cédula especificada' });
+        }
+
+        console.log('Registro eliminado correctamente');
+        res.status(200).json({ message: 'Registro eliminado correctamente' });
+    } catch (err) {
+        console.error('Error al intentar eliminar el registro:', err);
+        res.status(500).json({ error: 'Error en la eliminación del registro' });
+    }
+});
 
 
 
