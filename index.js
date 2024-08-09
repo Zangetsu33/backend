@@ -276,20 +276,32 @@ app.delete('/personal/db/cedula/:cedula', async (req, res) => {
 
     console.log('Intentando eliminar el registro con la cédula:', cedula);
 
-    // Definir la consulta SQL para eliminar registros por cédula
-    const query = `
-        DELETE FROM db
-        WHERE cedula = ?
-    `;
-
     try {
-        // Ejecutar la consulta de eliminación en la base de datos
-        const [result] = await db.query(query, [cedula]);
+        // Paso 1: Consultar el registro para verificar el ID y el cargo
+        const [record] = await db.query('SELECT id, cargo FROM db WHERE cedula = ?', [cedula]);
 
-        // Verificar si se eliminó algún registro
-        if (result.affectedRows === 0) {
+        // Verificar si se encontró el registro
+        if (record.length === 0) {
             console.log('No se encontraron registros con la cédula especificada');
             return res.status(404).json({ message: 'No se encontraron registros con la cédula especificada' });
+        }
+
+        // Obtener el registro encontrado
+        const { id, cargo } = record[0];
+
+        // Paso 2: Eliminar el registro de la tabla principal
+        const [deleteResult] = await db.query('DELETE FROM db WHERE cedula = ?', [cedula]);
+
+        // Verificar si se eliminó algún registro
+        if (deleteResult.affectedRows === 0) {
+            console.log('No se pudo eliminar el registro con la cédula especificada');
+            return res.status(404).json({ message: 'No se pudo eliminar el registro con la cédula especificada' });
+        }
+
+        // Paso 3: Actualizar el registro en la misma tabla si el ID o el cargo están vacíos
+        if (!id || !cargo) {
+            await db.query('INSERT INTO db (id, cargo) VALUES (?, ?)', [id || null, cargo || null]);
+            console.log('Datos vacíos almacenados en la misma tabla db');
         }
 
         console.log('Registro eliminado correctamente');
@@ -299,6 +311,8 @@ app.delete('/personal/db/cedula/:cedula', async (req, res) => {
         res.status(500).json({ error: 'Error en la eliminación del registro' });
     }
 });
+
+/
 
 
 
