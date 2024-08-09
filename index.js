@@ -312,7 +312,7 @@ app.delete('/personal/db/cedula/:cedula', async (req, res) => {
     }
 });
 
-/
+
 
 
 
