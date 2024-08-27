@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "nodemon index.js"
+    "start": "nodemon index.js"
+    
   },
   "author": "jonathan andres",
   "license": "ISC",
